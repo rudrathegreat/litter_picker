@@ -109,10 +109,9 @@ int setDelay(String command){
         return 1;
     }
 }
+```
 
 The code can be modified to a streamlined version
-
-
 
 ```
 
