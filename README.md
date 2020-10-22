@@ -1,188 +1,74 @@
-# litter_picker
+# Litter Hotspot Mapping System
 
 ## Overview
-In this tutorial we'll show you how to catpure GPS data from a Particle electron every 5 minutes and then publish this data to a Minnovation server.
-
-## Setting up the Particle electron
-The following code in the Particle Web IDE is used to test the GPS function of the Partcle electron using the Asset Tracker expansion board.
-
-```
-
-/* -----------------------------------------------------------
-This example shows a lot of different features. As configured here
-it'll check for a good GPS fix every 10 minutes and publish that data
-if there is one. If not, it'll save you data by staying quiet. It also
-registers 3 Particle.functions for changing whether it publishes,
-reading the battery level, and manually requesting a GPS reading.
----------------------------------------------------------------*/
-
-// Getting the library
-#include "AssetTracker.h"
+The Litter Hotspot Mapping System is a system designed to keep our cities and society clean while also putting an emphasis on the environment. Most of the street litter lying around on our streets end up in the oceans and tons of this stuff ends up in the ocean every year. Marine wildlife can then eat thse harmful plastics and other materials, killing them from the inside. To fix this problem, the source needs to be controlled first and that includes locating street litter hotspots in our community. With GPS trackers and other sensors attached to tongs (which pick up street litter), one can track where street litter hotspots are and enforce rules and advice of throwing litter in the bin, etc. Anyone can then access this data through a website or through a mobile app, allowing anyone to get involved. We want a cleaner, healthier planet.
 
 
+## In Depth
+### Checking when Street Litter is Picked Up
+The module is this system is the sensors that check when street litter is picked up. There are two options to this - 
 
-// Used to keep track of the last time we published data
-long lastPublish = 0;
+- Check when tongs are closed or
+- Check when a specific gesture is done
 
-// How many minutes between publishes? 10+ recommended for long-time continuous publishing!
-int delayMinutes = 1;
-String location = "";
+If such a switch is triggered, then the module will notify a Particle Electron to get GPS Latitude and Longitude Coordinates.
 
-// Creating an AssetTracker named 't' for us to reference
+### Getting GPS Coordinates
+
+The Particle Electron (along with an attached GPS module) will record latitude and longitude coordinates when the switch above is triggered. The main parts of the code are - 
+
+1. Setting up the GPS Tracker
+
+```C
+
 AssetTracker t = AssetTracker();
 char latLong[25];
 
 bool publishGPS = true;
 
-
-// setup() and loop() are both required. setup() runs once when the device starts
-// and is used for registering functions and variables and initializing things
 void setup() {
-    // Sets up all the necessary AssetTracker bits
     t.begin();
-    
-    // Enable the GPS module. Defaults to off to save power. 
-    // Takes 1.5s or so because of delays.
     t.gpsOn();
-    
-
-    
-    // These three functions are useful for remote diagnostics. Read more below.
-    Particle.variable("location", location);
-    Particle.function("setPublish", setPublish);
-    Particle.function("setDelay", setDelay);
-}
-
-// loop() runs continuously
-void loop() {
-    // You'll need to run this every loop to capture the GPS output
-    t.updateGPS();
-
-    // if the current time - the last time we published is greater than your set delay...
-    if(millis()-lastPublish > delayMinutes*60*1000){
-        // Remember when we published
-        lastPublish = millis();
-        
-        //String pubAccel = String::format("%d,%d,%d",t.readX(),t.readY(),t.readZ());
-        //Serial.println(pubAccel);
-        //Particle.publish("A", pubAccel, 60, PRIVATE);
-        
-        // Dumps the full NMEA sentence to serial in case you're curious
-        //Serial.println(t.preNMEA());
-        
-        // GPS requires a "fix" on the satellites to give good data,
-        // so we should only publish data if there's a fix
-        if(t.gpsFix()){
-            
-            location = t.readLatLon();
-            location.toCharArray(latLong, 25);
-            
-            //pressCount++;
-            String dataString = String(location);
-            if (publishGPS == true){
-                Particle.publish("gpsFix",dataString,60,PRIVATE);
-                delay(500);
-            }
-
-        }
-    }
-}
-
-int setPublish(String command){
-    if (command == "on"){
-        publishGPS = true;
-        return 1;
-    }
-    if (command == "off"){
-        publishGPS = false;
-        return 0;
-    }
-}
-
-int setDelay(String command){
-    if (command == "5"){
-        delayMinutes = 5;
-        return 5;
-    }
-    if (command == "1"){
-        delayMinutes = 1;
-        return 1;
-    }
-}
-```
-
-The code can be modified to a streamlined version
-
-```
-
-/* -----------------------------------------------------------
-This example shows a lot of different features. As configured here
-it'll check for a good GPS fix every 5 minutes and publish that data
-if there is one. If not, it'll save you data by staying quiet. 
----------------------------------------------------------------*/
-
-// Getting the library
-#include "AssetTracker.h"
-
-// Used to keep track of the last time we published data
-long lastPublish = 0;
-
-// How many minutes between publishes? 
-int delayMinutes = 5; // Aim to publish every 5 minutes
-String location = "";
-
-// Creating an AssetTracker named 't' for us to reference
-AssetTracker t = AssetTracker();
-char latLong[25];
-
-bool publishGPS = true;
-
-
-// setup() and loop() are both required. setup() runs once when the device starts
-// and is used for registering functions and variables and initializing things
-void setup() {
-    // Sets up all the necessary AssetTracker bits
-    t.begin();
-    
-    // Enable the GPS module. Defaults to off to save power. 
-    // Takes 1.5s or so because of delays.
-    t.gpsOn();
-    
-    // Check GPS data coordinates remotely using Particle Console
     Particle.variable("location", location);
 }
 
-// loop() runs continuously
-void loop() {
-    // You'll need to run this every loop to capture the GPS output
-    t.updateGPS();
+```
 
-    // if the current time - the last time we published is greater than your set delay...
-    if(millis()-lastPublish > delayMinutes*60*1000){
-        // Remember when we published
-        lastPublish = millis();
-        
-        // GPS requires a "fix" on the satellites to give good data,
-        // so we should only publish data if there's a fix
-        if(t.gpsFix()){
-            
-            location = t.readLatLon();
-            location.toCharArray(latLong, 25);
-            
-            String dataString = String(location);
-            if (publishGPS == true){
-                Particle.publish("gpsFix",dataString,60,PRIVATE);
-                delay(500);
-            }
+2. Publishing location data to the Particle Cloud
 
-        }
-    }
-}
+```C 
 
+location = t.readLatLon();
+location.toCharArray(latLong, 25);
+
+String dataString = String(location);
+if (publishGPS == true){
+    Particle.publish("gpsFix",dataString,60,PRIVATE);
+    delay(500);
 
 ```
 
-An example of the output from this code in included below.
+The image below shows the result that is seen (data is being published live to the Particle Cloud). Now the snippets of code above is not the entire thing, to find the entire code, use the link provided below - 
+
+https://github.com/rudrathegreat/litter_picker/blob/main/code/GPS.c
 
 <img src="images/Particle_electron_GPS_fix.png" width=80%>
 
+## Features
+
+- Currently got GPS tracking working
+
+## Requirements
+
+- Particle electron with GPS Module
+- Implementation of C for Particle Electron
+
+## Further Resources
+
+https://docs.particle.io/quickstart/electron/
+
+```Python
+
+print('Thanks for Reading!')
+
+```
