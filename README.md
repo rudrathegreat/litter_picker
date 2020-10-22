@@ -1,5 +1,15 @@
 # Litter Hotspot Mapping System
 
+## Contents
+
+- [Overview](#overview)
+- [In Depth](#in-depth)
+    - [Checking when Street Litter is Picked Up](#checking-when-street-litter-is-picked-up)
+    - [Getting GPS Coordinates](#getting-GPS-coordinates)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Further Resources](#further-resources)
+
 ## Overview
 The Litter Hotspot Mapping System is a system designed to keep our cities and society clean while also putting an emphasis on the environment. Most of the street litter lying around on our streets end up in the oceans and tons of this stuff ends up in the ocean every year. Marine wildlife can then eat thse harmful plastics and other materials, killing them from the inside. To fix this problem, the source needs to be controlled first and that includes locating street litter hotspots in our community. With GPS trackers and other sensors attached to tongs (which pick up street litter), one can track where street litter hotspots are and enforce rules and advice of throwing litter in the bin, etc. Anyone can then access this data through a website or through a mobile app, allowing anyone to get involved. We want a cleaner, healthier planet.
 
